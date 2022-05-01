@@ -69,7 +69,10 @@ namespace WayGeocoder
             var result = new ConcurrentBag<string>();
             var errors = new ConcurrentBag<string>();
             int count = 0;
-            Parallel.ForEach(ways, way =>
+            Parallel.ForEach(ways,new ParallelOptions()
+            {
+                MaxDegreeOfParallelism = 256,
+            }, way =>
              {
                  int current = Interlocked.Increment(ref count);
 
