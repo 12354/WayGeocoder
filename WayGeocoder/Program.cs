@@ -109,8 +109,9 @@ namespace WayGeocoder
                      }
 
                  }
-                 catch
+                 catch(Exception ex)
                  {
+                     Console.WriteLine(ex.ToString());
                      errors.Add(way);
                      if (current % 1000 == 0)
                      {
