@@ -43,6 +43,7 @@ namespace WayGeocoder
         static string uri = "";
         static void Main(string[] args)
         {
+             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             if (args.Length == 0)
             {
                 Console.WriteLine("Kein Input angegeben");
