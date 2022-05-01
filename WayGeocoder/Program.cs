@@ -72,7 +72,14 @@ namespace WayGeocoder
             var errors = new ConcurrentBag<string>();
 
             int count = 0;
-            Parallel.ForEach(ways, way =>
+            int data_missing = 0;
+            int unable_to_geocode = 0;
+            int exception = 0;
+            Parallel.ForEach(ways,new ParallelOptions()
+            {
+                MaxDegreeOfParallelism= 64,
+            },
+                way =>
              {
                  int current = Interlocked.Increment(ref count);
 
@@ -83,18 +90,23 @@ namespace WayGeocoder
                      {
                          errors.Add(way);
                          //   bar.Next("Error: " + way);
+                         Interlocked.Increment(ref unable_to_geocode);
+
+
                          if (current % 1000 == 0)
                          {
-                             Console.WriteLine($"Count: {current}/{ways.Length} Errors: {errors.Count}");
+                             Console.WriteLine($"Count: {current}/{ways.Length} Errors: {errors.Count}/G{unable_to_geocode}/D{data_missing}/E{exception}");
                          }
                          return;
                      }
                      var json = JsonSerializer.Deserialize<NominatimXML>(response);
                      if ((json?.address?.city ?? json?.address?.village) == null || json?.address?.road == null)
                      {
+                         Interlocked.Increment(ref data_missing);
+
                          if (current % 1000 == 0)
                          {
-                             Console.WriteLine($"Count: {current}/{ways.Length} Errors: {errors.Count}");
+                             Console.WriteLine($"Count: {current}/{ways.Length} Errors: {errors.Count}/G{unable_to_geocode}/D{data_missing}/E{exception}");
                          }
                          return;
                      }
@@ -102,17 +114,19 @@ namespace WayGeocoder
                      result.Add(csvLine);
                      if (current % 1000 == 0)
                      {
-                         Console.WriteLine($"Count: {current}/{ways.Length} Errors: {errors.Count}");
+                         Console.WriteLine($"Count: {current}/{ways.Length} Errors: {errors.Count}/G{unable_to_geocode}/D{data_missing}/E{exception}");
                      }
 
                  }
                  catch(Exception ex)
                  {
                      Console.WriteLine(ex.ToString());
+                     Interlocked.Increment(ref exception);
+
                      errors.Add(way);
                      if (current % 1000 == 0)
                      {
-                         Console.WriteLine($"Count: {current}/{ways.Length} Errors: {errors.Count}");
+                         Console.WriteLine($"Count: {current}/{ways.Length} Errors: {errors.Count}/G{unable_to_geocode}/D{data_missing}/E{exception}");
                      }
                      //bar.Next("Error: " + way);
                  }
