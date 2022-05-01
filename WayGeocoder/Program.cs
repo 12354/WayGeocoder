@@ -123,7 +123,7 @@ namespace WayGeocoder
                  }
                  catch(Exception ex)
                  {
-                     Console.WriteLine(ex.ToString());
+                     //Console.WriteLine(ex.ToString());
                      Interlocked.Increment(ref exception);
 
                      errors.Add(way);
