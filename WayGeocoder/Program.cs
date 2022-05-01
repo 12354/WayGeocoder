@@ -66,7 +66,10 @@ namespace WayGeocoder
 
             //var bar = new ProgressBar(ways.Length);
             //bar.Refresh(0, ways[0]);
-            var httpClient = new HttpClient();
+            var httpClient = new HttpClient()
+            {
+                Timeout = TimeSpan.FromMinutes(2)
+            };
 
             var result = new ConcurrentBag<string>();
             var errors = new ConcurrentBag<string>();
@@ -77,7 +80,7 @@ namespace WayGeocoder
             int exception = 0;
             Parallel.ForEach(ways,new ParallelOptions()
             {
-                MaxDegreeOfParallelism= 64,
+                MaxDegreeOfParallelism= 6,
             },
                 way =>
              {
