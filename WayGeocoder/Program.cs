@@ -87,7 +87,7 @@ namespace WayGeocoder
                          //   bar.Next("Error: " + way);
                          if (current % 1000 == 0)
                          {
-                             Console.WriteLine($"Count: {current}/{ways.Length}");
+                             Console.WriteLine($"Count: {current}/{ways.Length} Errors: {errors}");
                          }
                          return;
                      }
@@ -96,7 +96,7 @@ namespace WayGeocoder
                      {
                          if (current % 1000 == 0)
                          {
-                             Console.WriteLine($"Count: {current}/{ways.Length}");
+                             Console.WriteLine($"Count: {current}/{ways.Length} Errors: {errors}");
                          }
                          return;
                      }
@@ -104,7 +104,7 @@ namespace WayGeocoder
                      result.Add(csvLine);
                      if (current % 1000 == 0)
                      {
-                         Console.WriteLine($"Count: {current}/{ways.Length}");
+                         Console.WriteLine($"Count: {current}/{ways.Length} Errors: {errors}");
                      }
 
                  }
@@ -113,7 +113,7 @@ namespace WayGeocoder
                      errors.Add(way);
                      if (current % 1000 == 0)
                      {
-                         Console.WriteLine($"Count: {current}/{ways.Length}");
+                         Console.WriteLine($"Count: {current}/{ways.Length} Errors: {errors}");
                      }
                      //bar.Next("Error: " + way);
                  }
