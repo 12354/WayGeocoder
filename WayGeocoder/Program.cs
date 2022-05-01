@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 namespace WayGeocoder
 {
@@ -68,8 +69,9 @@ namespace WayGeocoder
 
             var result = new ConcurrentBag<string>();
             var errors = new ConcurrentBag<string>();
+
             int count = 0;
-            Parallel.ForEach(ways,new ParallelOptions()
+            Parallel.ForEach(ways, new ParallelOptions()
             {
                 MaxDegreeOfParallelism = 256,
             }, way =>
@@ -122,8 +124,19 @@ namespace WayGeocoder
 
             var resultSb = new StringBuilder();
             resultSb.AppendLine("STRASSE;SYNONYM;POS;ORT;ORTSTEIL;PLZ;AAO_GEBIET;ABSCHNITT;INFO_PFAD;ANFAHRT;HINWEIS;KOORDX;KOORDY;HAUSNUMMER_MIN;HAUSNUMMER_MAX;");
+            var resultHashSet = new HashSet<string>();
             foreach (var way in result)
             {
+                var firstPart = Regex.Match(way, "(.*?);;;(.*?);(.*?);(.*?);;;;;;");
+                if (firstPart.Success)
+                {
+                    if (resultHashSet.Contains(firstPart.Value))
+                    {
+                        continue;
+                    }
+                    resultHashSet.Add(firstPart.Value);
+                }
+
                 resultSb.AppendLine(way);
             }
             File.WriteAllText(args[1], resultSb.ToString());
