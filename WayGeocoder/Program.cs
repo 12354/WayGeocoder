@@ -46,13 +46,13 @@ namespace WayGeocoder
                 Console.WriteLine("Kein Input angegeben");
                 Environment.Exit(1);
             }
-             if (args.Length == 1)
+            if (args.Length == 1)
             {
                 Console.WriteLine("Kein Output angegeben");
                 Environment.Exit(1);
             }
             var ip = File.ReadAllText("server.txt");
-            uri = string.Format(template,ip,"{0}");
+            uri = string.Format(template, ip, "{0}");
             var ways = File.ReadAllLines(args[0]);
             if (ways.Length <= 1)
             {
@@ -61,7 +61,7 @@ namespace WayGeocoder
             }
             ways = ways.Skip(1).ToArray();
             Console.WriteLine($"Found {ways.Length} ways");
-            
+
             //var bar = new ProgressBar(ways.Length);
             //bar.Refresh(0, ways[0]);
             var httpClient = new HttpClient();
@@ -71,42 +71,50 @@ namespace WayGeocoder
             int count = 0;
             Parallel.ForEach(ways, way =>
              {
+                 int current = Interlocked.Increment(ref count);
+
                  try
                  {
                      var response = httpClient.GetStringAsync(string.Format(uri, way)).Result;
-                     if(response.Contains("Unable to geocode"))
+                     if (response.Contains("Unable to geocode"))
                      {
-                            errors.Add(way);
+                         errors.Add(way);
                          //   bar.Next("Error: " + way);
-                         Interlocked.Increment(ref count);
-                            return;
+                         if (current % 1000 == 0)
+                         {
+                             Console.WriteLine($"Count: {current}/{ways.Length}");
+                         }
+                         return;
                      }
                      var json = JsonSerializer.Deserialize<NominatimXML>(response);
-                     if((json?.address?.city ?? json?.address?.suburb) == null || json?.address?.road == null)
+                     if ((json?.address?.city ?? json?.address?.suburb) == null || json?.address?.road == null)
                      {
-                       //     bar.Next("Skip: " + way);
-                       Interlocked.Increment(ref count);
-                            return;
+                         if (current % 1000 == 0)
+                         {
+                             Console.WriteLine($"Count: {current}/{ways.Length}");
+                         }
+                         return;
                      }
-                     var csvLine = $"{json.address.road};;;{json.address.city ?? json.address.suburb};{json.address.city_district ?? json.address.city ?? json.address.suburb};{json.address.postcode};;;;;;{json.lon.ToString().Replace(".",",")};{json.lat.ToString().Replace(".",",")};;;";
+                     var csvLine = $"{json.address.road};;;{json.address.city ?? json.address.suburb};{json.address.city_district ?? json.address.city ?? json.address.suburb};{json.address.postcode};;;;;;{json.lon.ToString().Replace(".", ",")};{json.lat.ToString().Replace(".", ",")};;;";
                      result.Add(csvLine);
-                     var current = Interlocked.Increment(ref count);
-                     //bar.Next(json.display_name);
-                     if(current % 1000 == 0)
+                     if (current % 1000 == 0)
                      {
                          Console.WriteLine($"Count: {current}/{ways.Length}");
                      }
-                     
+
                  }
                  catch
                  {
                      errors.Add(way);
-                     Interlocked.Increment(ref count);
+                     if (current % 1000 == 0)
+                     {
+                         Console.WriteLine($"Count: {current}/{ways.Length}");
+                     }
                      //bar.Next("Error: " + way);
                  }
              });
             Console.WriteLine("Number of errors: " + errors.Count);
-            File.WriteAllLines("errors.txt",errors);
+            File.WriteAllLines("errors.txt", errors);
             Console.WriteLine("Wrote errors to errors.txt");
 
             var resultSb = new StringBuilder();
@@ -115,7 +123,7 @@ namespace WayGeocoder
             {
                 resultSb.AppendLine(way);
             }
-            File.WriteAllText(args[1],resultSb.ToString());
+            File.WriteAllText(args[1], resultSb.ToString());
         }
     }
 }
