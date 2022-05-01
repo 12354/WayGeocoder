@@ -80,6 +80,11 @@ namespace WayGeocoder
                             return;
                      }
                      var json = JsonSerializer.Deserialize<NominatimXML>(response);
+                     if((json?.address?.city ?? json?.address?.suburb) == null || json?.address?.road == null)
+                     {
+                            bar.Next("Skip: " + way);
+                            return;
+                     }
                      var csvLine = $"{json.address.road};;;{json.address.city ?? json.address.suburb};{json.address.city_district ?? json.address.city ?? json.address.suburb};{json.address.postcode};;;;;;{json.lon.ToString().Replace(".",",")};{json.lat.ToString().Replace(".",",")};;;";
                      result.Add(csvLine);
                      bar.Next(json.display_name);
