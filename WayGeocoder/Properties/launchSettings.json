@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "WayGeocoder": {
+      "commandName": "Project",
+      "commandLineArgs": "unterfranken.csv unterfranken_roads.csv"
+    }
+  }
+}
