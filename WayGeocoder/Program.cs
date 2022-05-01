@@ -62,12 +62,13 @@ namespace WayGeocoder
             ways = ways.Skip(1).ToArray();
             Console.WriteLine($"Found {ways.Length} ways");
             
-            var bar = new ProgressBar(ways.Length);
-            bar.Refresh(0, ways[0]);
+            //var bar = new ProgressBar(ways.Length);
+            //bar.Refresh(0, ways[0]);
             var httpClient = new HttpClient();
 
             var result = new ConcurrentBag<string>();
             var errors = new ConcurrentBag<string>();
+            int count = 0;
             Parallel.ForEach(ways, way =>
              {
                  try
@@ -76,24 +77,32 @@ namespace WayGeocoder
                      if(response.Contains("Unable to geocode"))
                      {
                             errors.Add(way);
-                            bar.Next("Error: " + way);
+                         //   bar.Next("Error: " + way);
+                         Interlocked.Increment(ref count);
                             return;
                      }
                      var json = JsonSerializer.Deserialize<NominatimXML>(response);
                      if((json?.address?.city ?? json?.address?.suburb) == null || json?.address?.road == null)
                      {
-                            bar.Next("Skip: " + way);
+                       //     bar.Next("Skip: " + way);
+                       Interlocked.Increment(ref count);
                             return;
                      }
                      var csvLine = $"{json.address.road};;;{json.address.city ?? json.address.suburb};{json.address.city_district ?? json.address.city ?? json.address.suburb};{json.address.postcode};;;;;;{json.lon.ToString().Replace(".",",")};{json.lat.ToString().Replace(".",",")};;;";
                      result.Add(csvLine);
-                     bar.Next(json.display_name);
+                     Interlocked.Increment(ref count);
+                     //bar.Next(json.display_name);
+                     if(count % 1000 == 0)
+                     {
+                         Console.WriteLine($"Count: {count}/{ways.Length}");
+                     }
                      
                  }
                  catch
                  {
                      errors.Add(way);
-                     bar.Next("Error: " + way);
+                     Interlocked.Increment(ref count);
+                     //bar.Next("Error: " + way);
                  }
              });
             Console.WriteLine("Number of errors: " + errors.Count);
