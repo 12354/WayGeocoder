@@ -90,11 +90,11 @@ namespace WayGeocoder
                      }
                      var csvLine = $"{json.address.road};;;{json.address.city ?? json.address.suburb};{json.address.city_district ?? json.address.city ?? json.address.suburb};{json.address.postcode};;;;;;{json.lon.ToString().Replace(".",",")};{json.lat.ToString().Replace(".",",")};;;";
                      result.Add(csvLine);
-                     Interlocked.Increment(ref count);
+                     var current = Interlocked.Increment(ref count);
                      //bar.Next(json.display_name);
-                     if(count % 1000 == 0)
+                     if(current % 1000 == 0)
                      {
-                         Console.WriteLine($"Count: {count}/{ways.Length}");
+                         Console.WriteLine($"Count: {current}/{ways.Length}");
                      }
                      
                  }
