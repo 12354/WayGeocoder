@@ -29,6 +29,7 @@ namespace WayGeocoder
         public string suburb { get; set; }
         public string city_district { get; set; }
         public string city { get; set; }
+        public string village { get; set; }
         public string state { get; set; }
         public string postcode { get; set; }
         public string country { get; set; }
@@ -92,7 +93,7 @@ namespace WayGeocoder
                          return;
                      }
                      var json = JsonSerializer.Deserialize<NominatimXML>(response);
-                     if ((json?.address?.city ?? json?.address?.suburb) == null || json?.address?.road == null)
+                     if ((json?.address?.city ?? json?.address?.village) == null || json?.address?.road == null)
                      {
                          if (current % 1000 == 0)
                          {
@@ -100,7 +101,7 @@ namespace WayGeocoder
                          }
                          return;
                      }
-                     var csvLine = $"{json.address.road};;;{json.address.city ?? json.address.suburb};{json.address.city_district ?? json.address.city ?? json.address.suburb};{json.address.postcode};;;;;;{json.lon.ToString().Replace(".", ",")};{json.lat.ToString().Replace(".", ",")};;;";
+                     var csvLine = $"{json.address.road};;;{json.address.city ?? json.address.village};{json.address.city_district ?? json.address.city ?? json.address.suburb};{json.address.postcode};;;;;;{json.lon.ToString().Replace(".", ",")};{json.lat.ToString().Replace(".", ",")};;;";
                      result.Add(csvLine);
                      if (current % 1000 == 0)
                      {
