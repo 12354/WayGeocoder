@@ -155,7 +155,7 @@ namespace WayGeocoder
 
                 resultSb.AppendLine(way);
             }
-            File.WriteAllText(args[1], resultSb.ToString());
+            File.WriteAllText(args[1], resultSb.ToString(),Encoding.GetEncoding("windows-1252"));
         }
     }
 }
